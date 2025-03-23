@@ -1,0 +1,114 @@
+{
+  "log": {
+    "access": "/var/log/xray-access.log",
+    "error": "/var/log/xray-error.log",
+    "loglevel": "warning",
+    "dnsLog": true
+  },
+  "inbounds": [
+    {
+      "port": 12345,
+      "protocol": "dokodemo-door",
+      "settings": {
+        "network": "tcp,udp",
+        "followRedirect": true
+      },
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      },
+      "streamSettings": {
+        "sockopt": {
+          "tproxy": "tproxy"
+        }
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "#####",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "flow": "xtls-rprx-vision",
+                "id": "######"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "raw",
+        "realitySettings": {
+          "fingerprint": "chrome",
+          "publicKey": "#####",
+          "serverName": "yahoo.com",
+          "shortId": "#####",
+          "spiderX": "/"
+        },
+        "security": "reality",
+        "sockopt": {}
+      },
+      "mux": {
+        "enabled": false,
+        "concurrency": 8,
+        "xudpConcurrency": 16,
+        "xudpProxyUDP443": "allow"
+      },
+      "tag": "proxy"
+    },
+    {
+      "protocol": "freedom",
+      "tag": "direct"
+    },
+    {
+      "tag": "block",
+      "protocol": "blackhole",
+      "settings": {
+        "response": {
+          "type": "http"
+        }
+      }
+    }
+  ],
+  "routing": {
+    "domainStrategy": "IpIfNonMatch",
+    "rules": [
+      {
+        "inboundTag": [
+          "dnsQuery"
+        ],
+        "outboundTag": "proxy",
+        "type": "field"
+      },
+      {
+        "domain": [
+          "geosite:PRIVATE",
+          "geosite:APPLE",
+          "geosite:CATEGORY-GOV-RU",
+          "geosite:YANDEX",
+          "geosite:MAILRU",
+          "regexp:.ru$"
+        ],
+        "outboundTag": "direct",
+        "type": "field"
+      },
+      {
+        "ip": [
+          "geoip:PRIVATE",
+          "geoip:RU"
+        ],
+        "outboundTag": "direct",
+        "type": "field"
+      }
+    ]
+  }
+}
