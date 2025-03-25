@@ -4,7 +4,7 @@ https://firmware-selector.openwrt.org/?version=SNAPSHOT&target=bcm27xx%2Fbcm2712
 
 ##### Installed Packages
 ```
-... luci nano xray-core v2ray-geoip v2ray-geosite kmod-mt76x2u usbutils kmod-usb2 kmod-usb3 kmod-nft-tproxy kmod-mt7921u
+... luci nano xray-core v2ray-geoip v2ray-geosite kmod-mt76x2u usbutils kmod-usb2 kmod-usb3 kmod-nft-tproxy kmod-mt7921u kmod-usb-net-rtl8152
 ```
 
 ##### Script to run on first boot (uci-defaults)

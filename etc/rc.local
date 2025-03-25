@@ -1,0 +1,29 @@
+# Put your custom commands here that should be executed once
+# the system init finished. By default this file does nothing.
+
+nft add table inet xray
+nft add chain inet xray prerouting { type filter hook prerouting priority -150 \; }
+nft add chain inet xray xray-chain
+
+# Forward packets to the XRAY chain
+nft add rule inet xray prerouting iifname "br-lan" jump xray-chain
+
+# Exclude local network ranges
+nft add rule inet xray xray-chain ip daddr 192.168.1.0/24 return
+nft add rule inet xray xray-chain ip daddr 0.0.0.0/8 return
+nft add rule inet xray xray-chain ip daddr 127.0.0.0/8 return
+nft add rule inet xray xray-chain ip daddr 10.0.0.0/8 return
+nft add rule inet xray xray-chain ip daddr 172.16.0.0/12 return
+nft add rule inet xray xray-chain ip daddr 192.168.0.0/16 return
+nft add rule inet xray xray-chain ip daddr 224.0.0.0/4 return
+nft add rule inet xray xray-chain ip daddr 240.0.0.0/4 return
+
+# Redirect TCP and UDP traffic to TPROXY
+nft add rule inet xray xray-chain meta l4proto tcp tproxy to :12345 meta mark set 1
+nft add rule inet xray xray-chain meta l4proto udp tproxy to :12345 meta mark set 1
+
+# Add routing rules
+ip rule add fwmark 1 lookup 100
+ip route add local default dev lo table 100
+
+exit 0
